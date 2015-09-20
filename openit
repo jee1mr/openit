@@ -1,0 +1,37 @@
+if [ $# -gt 1 ]; then
+    echo "You can only open 1 file at a time";
+    exit
+elif [ $# -eq 0 ]; then
+    echo "Nothing to open"
+    exit
+fi
+
+if [ -d "$1" ]; then
+    nautilus "$1"  
+    exit
+fi
+
+ext=`echo "$1" | rev | cut -d '.' -f 1| rev`
+
+case $ext in 
+"html")
+    ext="text/html"
+    ;;
+"txt")
+    ext="text/plain"
+    ;;
+"doc")
+    ext="opendocument.text"
+    ;;
+*)
+    ;;
+esac
+
+default_app=`grep $ext /usr/share/applications/defaults.list| cut -d "=" -f 2 | cut -d "." -f 1 | uniq` 
+
+if [ ! -f "$1" ]; then
+    echo "File not found"
+    exit
+fi
+
+$default_app "$1" > /dev/null 2>&1 &
